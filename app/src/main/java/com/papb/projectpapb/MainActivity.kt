@@ -6,6 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,6 +51,9 @@ fun InputScreen(modifier: Modifier = Modifier) {
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Enter Name") },
+                leadingIcon = {
+                    Icon(Icons.Filled.AccountCircle, contentDescription = "Name Icon")
+                },
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             OutlinedTextField(
@@ -55,6 +61,9 @@ fun InputScreen(modifier: Modifier = Modifier) {
                 onValueChange = { nim = it },
                 label = { Text("Enter NIM") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                leadingIcon = {
+                    Icon(Icons.Filled.Info, contentDescription = "NIM Icon")
+                },
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -66,23 +75,24 @@ fun InputScreen(modifier: Modifier = Modifier) {
         } else {
             Card(
                 modifier = Modifier
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .wrapContentHeight()
+                    .fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .padding(16.dp)
-                        .fillMaxSize(),
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Name: $name", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
-                    Text(text = "NIM: $nim", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
+                    Text(text = "Name: $name", fontSize = 14.sp, modifier = Modifier.padding(8.dp))
+                    Text(text = "NIM: $nim", fontSize = 14.sp, modifier = Modifier.padding(8.dp))
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
                         isSubmitted = false
-                        name = ""
-                        nim = ""
                     }) {
                         Text("Edit")
                     }
