@@ -1,4 +1,4 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.data.model.local
 
 data class GithubProfile(
     val avatar_url: String,

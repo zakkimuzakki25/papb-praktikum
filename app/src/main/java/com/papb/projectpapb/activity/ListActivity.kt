@@ -1,26 +1,19 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.firestore.FirebaseFirestore
+import com.papb.projectpapb.navgation.AppNavHost
+import com.papb.projectpapb.data.model.local.MataKuliah
 import com.papb.projectpapb.ui.theme.ProjectPAPBTheme
-import kotlinx.coroutines.tasks.await
 
 class ListActivity : ComponentActivity() {
 
@@ -33,60 +26,6 @@ class ListActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScheduleScreen(navController: NavController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Mata Kuliah") },
-                actions = {
-                    IconButton(onClick = {
-                        navController?.navigate("githubProfile")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.github),
-                            contentDescription = "GitHub Profile"
-                        )
-                    }
-                }
-            )
-        },
-        content = { contentPadding ->
-            val schedules = remember { mutableStateListOf<MataKuliah>() }
-            val db = FirebaseFirestore.getInstance()
-
-            LaunchedEffect(Unit) {
-                try {
-                    val snapshot = db.collection("mata_kuliah").get().await()
-                    val scheduleList = snapshot.documents.map { document ->
-                        MataKuliah(
-                            hari = document.getString("hari") ?: "",
-                            jam = document.getString("jam") ?: "",
-                            nama_matkul = document.getString("nama_matkul") ?: "",
-                            ruang = document.getString("ruang") ?: "",
-                            is_praktikum = document.getBoolean("is_praktikum") ?: false
-                        )
-                    }
-                    schedules.addAll(scheduleList)
-                } catch (e: Exception) {
-                    Log.e("Firestore Error", "Error fetching data", e)
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding)
-            ) {
-                items(schedules) { schedule ->
-                    MataKuliahCard(schedule)
-                }
-            }
-        }
-    )
 }
 
 @Composable

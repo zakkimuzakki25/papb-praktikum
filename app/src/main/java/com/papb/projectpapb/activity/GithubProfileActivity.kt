@@ -1,10 +1,11 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.activity
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.papb.projectpapb.R
 
 class GithubProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -13,10 +13,10 @@
         android:theme="@style/Theme.ProjectPAPB"
         tools:targetApi="31">
         <activity
-            android:name=".GithubProfileActivity"
+            android:name=".activity.GithubProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ListActivity"
+            android:name=".activity.ListActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

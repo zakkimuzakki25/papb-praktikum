@@ -1,9 +1,11 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.papb.projectpapb.api.RetrofitInstance
+import com.papb.projectpapb.data.model.local.GithubProfile
 import kotlinx.coroutines.launch
 
 class GithubProfileViewModel : ViewModel() {

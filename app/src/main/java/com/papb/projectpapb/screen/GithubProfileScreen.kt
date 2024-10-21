@@ -1,4 +1,4 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.papb.projectpapb.viewmodel.GithubProfileViewModel
 
 @Composable
 fun GithubProfileScreen(viewModel: GithubProfileViewModel, username: String) {

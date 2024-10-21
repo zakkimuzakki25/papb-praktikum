@@ -1,6 +1,5 @@
 package com.papb.projectpapb
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,23 +7,28 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.Firebase
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.papb.projectpapb.navgation.AppNavHost
 import com.papb.projectpapb.ui.theme.ProjectPAPBTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,23 +43,92 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProjectPAPBTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    InputScreen(auth = auth, modifier = Modifier.padding(innerPadding))
+                val navController = rememberNavController()
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentRoute = navBackStackEntry?.destination?.route
+
+                        if (auth.currentUser != null && currentRoute != "login") {
+                            BottomNavigationBar(navController = navController, auth = auth)
+                        }
+                    }
+                ) { innerPadding ->
+                    AppNavHost(navController = navController)
                 }
             }
         }
     }
 }
 
+// Tambahkan item untuk logout di sini
+sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
+    object Matkul : BottomNavItem("matkul", Icons.Filled.DateRange, "Jadwal Kuliah")
+    object Tugas : BottomNavItem("tugas", Icons.Filled.Add, "Tugas")
+    object Profile : BottomNavItem("profile", Icons.Filled.AccountCircle, "Profile")
+    object Logout : BottomNavItem("logout", Icons.Filled.ExitToApp, "Logout")
+}
+
 @Composable
-fun InputScreen(auth: FirebaseAuth, modifier: Modifier = Modifier) {
+fun BottomNavigationBar(navController: NavHostController, auth: FirebaseAuth) {
+    val items = listOf(
+        BottomNavItem.Matkul,
+        BottomNavItem.Tugas,
+        BottomNavItem.Profile,
+        BottomNavItem.Logout
+    )
+
+    BottomAppBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEach { item ->
+                IconButton(
+                    onClick = {
+                        if (item is BottomNavItem.Logout) {
+                            // Logout the user and navigate to login screen
+                            auth.signOut()
+                            navController.navigate("login") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    },
+                    enabled = currentRoute != item.route
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.title
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun InputScreen(
+    auth: FirebaseAuth,
+    onLoginSuccess: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var successMessage by remember { mutableStateOf<String?>(null) }
-    var isSubmitted by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -64,7 +137,9 @@ fun InputScreen(auth: FirebaseAuth, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Login", fontSize = 22.sp, modifier = Modifier.padding(8.dp), fontWeight = FontWeight(600))
+        Text(text = "Login", fontSize = 22.sp, modifier = Modifier.padding(8.dp), fontWeight = FontWeight.Bold)
+
+        // Input field for email
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -72,8 +147,10 @@ fun InputScreen(auth: FirebaseAuth, modifier: Modifier = Modifier) {
             leadingIcon = {
                 Icon(Icons.Filled.Email, contentDescription = "Email Icon", Modifier.height(22.dp))
             },
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         )
+
+        // Input field for password
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -83,31 +160,26 @@ fun InputScreen(auth: FirebaseAuth, modifier: Modifier = Modifier) {
             leadingIcon = {
                 Icon(Icons.Filled.Lock, contentDescription = "Password Icon", Modifier.height(22.dp))
             },
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            enabled = email.isNotEmpty() && password.isNotEmpty(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Blue,
-                disabledContainerColor = Color.LightGray
-            ),
-            onClick = { auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-//                        val user = auth.currentUser
-                        isSubmitted = true
-                        successMessage = "Login successful!"
-                        errorMessage = null
 
-                        val intent = Intent(context, ListActivity::class.java)
-                        context.startActivity(intent)
-                    } else {
-                        errorMessage = "Authentication failed: ${task.exception?.message}"
-                        successMessage = null
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            enabled = email.isNotEmpty() && password.isNotEmpty() && !isLoading,
+            onClick = {
+                isLoading = true
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        isLoading = false
+                        if (task.isSuccessful) {
+                            onLoginSuccess()
+                        } else {
+                            errorMessage = "Authentication failed: ${task.exception?.message}"
+                        }
                     }
-                }
-              },
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Submit")
         }
@@ -115,16 +187,9 @@ fun InputScreen(auth: FirebaseAuth, modifier: Modifier = Modifier) {
         errorMessage?.let {
             Text(text = it, color = Color.Red, modifier = Modifier.padding(8.dp))
         }
-        successMessage?.let {
-            Text(text = it, color = Color.Green, modifier = Modifier.padding(8.dp))
-        }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun InputScreenPreview() {
-    ProjectPAPBTheme {
-        InputScreen(auth = Firebase.auth)
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(vertical = 16.dp))
+        }
     }
 }

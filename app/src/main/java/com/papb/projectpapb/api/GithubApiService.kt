@@ -1,5 +1,6 @@
-package com.papb.projectpapb
+package com.papb.projectpapb.api
 
+import com.papb.projectpapb.data.model.local.GithubProfile
 import retrofit2.http.GET
 import retrofit2.http.Path
 
