@@ -28,7 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.papb.projectpapb.navgation.AppNavHost
+import com.papb.projectpapb.navigation.AppNavHost
 import com.papb.projectpapb.ui.theme.ProjectPAPBTheme
 
 class MainActivity : ComponentActivity() {
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    AppNavHost(navController = navController)
+                    AppNavHost(navController = navController, modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -118,7 +118,6 @@ fun BottomNavigationBar(navController: NavHostController, auth: FirebaseAuth) {
     }
 }
 
-
 @Composable
 fun InputScreen(
     auth: FirebaseAuth,
@@ -137,7 +136,12 @@ fun InputScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Login", fontSize = 22.sp, modifier = Modifier.padding(8.dp), fontWeight = FontWeight.Bold)
+        Text(
+            text = "Login",
+            fontSize = 22.sp,
+            modifier = Modifier.padding(8.dp),
+            fontWeight = FontWeight.Bold
+        )
 
         // Input field for email
         OutlinedTextField(
@@ -147,7 +151,9 @@ fun InputScreen(
             leadingIcon = {
                 Icon(Icons.Filled.Email, contentDescription = "Email Icon", Modifier.height(22.dp))
             },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
 
         // Input field for password
@@ -160,7 +166,9 @@ fun InputScreen(
             leadingIcon = {
                 Icon(Icons.Filled.Lock, contentDescription = "Password Icon", Modifier.height(22.dp))
             },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -181,15 +189,18 @@ fun InputScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Submit")
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            } else {
+                Text("Submit")
+            }
         }
 
         errorMessage?.let {
             Text(text = it, color = Color.Red, modifier = Modifier.padding(8.dp))
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.padding(vertical = 16.dp))
         }
     }
 }

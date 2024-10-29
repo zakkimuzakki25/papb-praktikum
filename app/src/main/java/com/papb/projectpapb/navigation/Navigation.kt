@@ -1,4 +1,4 @@
-package com.papb.projectpapb.navgation
+package com.papb.projectpapb.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,6 +12,7 @@ import com.papb.projectpapb.screen.GithubProfileScreen
 import com.papb.projectpapb.viewmodel.GithubProfileViewModel
 import com.papb.projectpapb.screen.ScheduleScreen
 import com.papb.projectpapb.screen.TugasScreen
+import com.papb.projectpapb.viewmodel.TugasViewModel
 
 
 @Composable
@@ -48,7 +49,9 @@ fun AppNavHost(
 
         // Route for Tugas Screen
         composable("tugas") {
-            TugasScreen()
+            val tugasViewModel = viewModel<TugasViewModel>()
+            TugasScreen(viewModel = tugasViewModel)
         }
+
     }
 }

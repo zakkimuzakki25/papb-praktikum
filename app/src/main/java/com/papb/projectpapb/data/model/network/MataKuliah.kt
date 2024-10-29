@@ -1,4 +1,4 @@
-package com.papb.projectpapb.data.model.local
+package com.papb.projectpapb.data.model.network
 
 data class MataKuliah(
     val hari: String,

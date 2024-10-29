@@ -5,7 +5,7 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.papb.projectpapb.api.RetrofitInstance
-import com.papb.projectpapb.data.model.local.GithubProfile
+import com.papb.projectpapb.data.model.network.GithubProfile
 import kotlinx.coroutines.launch
 
 class GithubProfileViewModel : ViewModel() {

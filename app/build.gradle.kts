@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+//    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -68,6 +71,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,9 +84,15 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.compose.material3:material3:1.3.0")
 
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
-    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1")
-    implementation ("io.coil-kt:coil-compose:2.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
+    implementation("io.coil-kt:coil-compose:2.0.0")
+
+    // room
+    implementation(libs.room.runtime)
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation(libs.androidx.room.ktx)
+
 }

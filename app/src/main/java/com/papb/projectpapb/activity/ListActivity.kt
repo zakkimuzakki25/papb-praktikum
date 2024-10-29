@@ -11,8 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.papb.projectpapb.navgation.AppNavHost
-import com.papb.projectpapb.data.model.local.MataKuliah
+import com.papb.projectpapb.navigation.AppNavHost
+import com.papb.projectpapb.data.model.network.MataKuliah
 import com.papb.projectpapb.ui.theme.ProjectPAPBTheme
 
 class ListActivity : ComponentActivity() {
