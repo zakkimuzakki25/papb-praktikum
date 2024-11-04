@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
 //    id("com.google.devtools.ksp")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
+//    id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
@@ -92,7 +93,8 @@ dependencies {
 
     // room
     implementation(libs.room.runtime)
-    kapt("androidx.room:room-compiler:2.6.1")
+//    kapt("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.room.ktx)
+    ksp("androidx.room:room-compiler:2.6.1")
 
 }
