@@ -16,6 +16,8 @@ class Tugas (
     var matkul: String,
     @ColumnInfo(name = "detail_tugas")
     var detail_tugas: String,
-    @ColumnInfo(name = "isDone")
+    @ColumnInfo(name = "is_done")
     var is_done: Boolean,
+    @ColumnInfo(name = "image_uri")
+    val image_uri: String? = null
 ) : Parcelable

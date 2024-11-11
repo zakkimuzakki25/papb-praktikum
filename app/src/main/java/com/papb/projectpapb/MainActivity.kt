@@ -1,6 +1,7 @@
 package com.papb.projectpapb
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ProjectPAPBTheme {
                 val navController = rememberNavController()
+                Log.d("Tugas Screen", "Started")
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -99,6 +101,7 @@ fun BottomNavigationBar(navController: NavHostController, auth: FirebaseAuth) {
                                 popUpTo("login") { inclusive = true }
                             }
                         } else {
+                            Log.d("Bottom bar", item.title + "Started")
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
@@ -176,16 +179,17 @@ fun InputScreen(
         Button(
             enabled = email.isNotEmpty() && password.isNotEmpty() && !isLoading,
             onClick = {
-                isLoading = true
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        isLoading = false
-                        if (task.isSuccessful) {
-                            onLoginSuccess()
-                        } else {
-                            errorMessage = "Authentication failed: ${task.exception?.message}"
-                        }
-                    }
+//                isLoading = true
+//                auth.signInWithEmailAndPassword(email, password)
+//                    .addOnCompleteListener { task ->
+//                        isLoading = false
+//                        if (task.isSuccessful) {
+//                            onLoginSuccess()
+//                        } else {
+//                            errorMessage = "Authentication failed: ${task.exception?.message}"
+//                        }
+//                    }
+                onLoginSuccess()
             },
             modifier = Modifier.fillMaxWidth()
         ) {

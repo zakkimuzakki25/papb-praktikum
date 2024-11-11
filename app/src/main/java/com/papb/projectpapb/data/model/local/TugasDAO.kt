@@ -14,8 +14,8 @@ interface TugasDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertTugas(tugas: Tugas)
 
-    @Query("UPDATE tugas SET isDone = :isDone WHERE id = :id")
-    fun updateTugas(id: Int, isDone: Boolean)
+    @Query("UPDATE tugas SET is_done = :is_done WHERE id = :id")
+    fun updateTugas(id: Int, is_done: Boolean)
 
     @Query("DELETE FROM tugas WHERE id = :id")
     fun deleteTugasById(id: Int)

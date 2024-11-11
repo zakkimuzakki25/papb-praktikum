@@ -1,5 +1,8 @@
 package com.papb.projectpapb.screen
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,20 +14,38 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.papb.projectpapb.data.model.local.Tugas
 import com.papb.projectpapb.viewmodel.TugasViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.shadow
+import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import com.papb.projectpapb.activity.CameraActivity
 
 @Composable
 fun TugasScreen(viewModel: TugasViewModel = viewModel()) {
     var mataKuliah by remember { mutableStateOf(TextFieldValue("")) }
     var detailTugas by remember { mutableStateOf(TextFieldValue("")) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var isSubmitted by remember { mutableStateOf(false) }
 
     val tugasList by viewModel.tugasList.observeAsState(emptyList())
+    val context = LocalContext.current
+
+    // CameraX launcher
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == CameraActivity.CAMERAX_RESULT) {
+            imageUri = result.data?.getStringExtra(CameraActivity.EXTRA_CAMERAX_IMAGE)?.toUri()
+        }
+    }
+
+    val isEnabled = mataKuliah.text.isNotEmpty() && detailTugas.text.isNotEmpty()
 
     LaunchedEffect(isSubmitted) {
         if (isSubmitted) {
@@ -61,44 +82,50 @@ fun TugasScreen(viewModel: TugasViewModel = viewModel()) {
             label = { Text("Detail Tugas") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 8.dp)
         )
 
-        Button(
-            onClick = {
-                if (mataKuliah.text.isNotEmpty() && detailTugas.text.isNotEmpty()) {
-                    val newTugas = Tugas(
-                        matkul = mataKuliah.text,
-                        detail_tugas = detailTugas.text,
-                        is_done = false
-                    )
-                    viewModel.insertTugas(newTugas)
-                    isSubmitted = true
-                    mataKuliah = TextFieldValue("")
-                    detailTugas = TextFieldValue("")
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text("Submit", color = MaterialTheme.colorScheme.onPrimary)
+        // Image Preview
+        if (imageUri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(imageUri),
+                contentDescription = "Preview Gambar",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(vertical = 16.dp)
+            )
         }
 
-        if (isSubmitted) {
-            Snackbar(
-                modifier = Modifier.padding(top = 8.dp),
-                action = {
-                    TextButton(onClick = { isSubmitted = false }) {
-                        Text("Tutup", color = MaterialTheme.colorScheme.primary)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = { /* Launch CameraX Activity */ cameraLauncher.launch(Intent(context, CameraActivity::class.java)) }) {
+                Text("Ambil Foto")
+            }
+            Button(
+                onClick = {
+                    if (isEnabled) {
+                        val newTugas = Tugas(
+                            matkul = mataKuliah.text,
+                            detail_tugas = detailTugas.text,
+                            image_uri = imageUri.toString(), // Store image URI if available
+                            is_done = false
+                        )
+                        viewModel.insertTugas(newTugas)
+                        isSubmitted = true
+                        mataKuliah = TextFieldValue("")
+                        detailTugas = TextFieldValue("")
+                        imageUri = null
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.surface
+                enabled = isEnabled, // Enable or disable button based on field values
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                )
             ) {
-                Text("Tugas berhasil disimpan!", color = MaterialTheme.colorScheme.onSurface)
+                Text("Submit", color = if (isEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
@@ -112,7 +139,10 @@ fun TugasScreen(viewModel: TugasViewModel = viewModel()) {
                         onStatusChange = { viewModel.updateTugasStatus(tugas.id, true) },
                         onDelete = { viewModel.deleteTugas(tugas.id) }
                     )
-                    Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 }
             }
         } else {
@@ -127,6 +157,8 @@ fun TugasScreen(viewModel: TugasViewModel = viewModel()) {
 
 @Composable
 fun TugasKuliahCard(tugas: Tugas, onStatusChange: () -> Unit, onDelete: () -> Unit) {
+    var isFullScreen by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -155,6 +187,25 @@ fun TugasKuliahCard(tugas: Tugas, onStatusChange: () -> Unit, onDelete: () -> Un
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                tugas.image_uri?.let { imageUri ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(if (isFullScreen) 300.dp else 150.dp)
+                            .padding(vertical = 8.dp)
+                            .clickable { isFullScreen = !isFullScreen }
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(imageUri.toUri()),
+                            contentDescription = "Preview Gambar Tugas",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(if (isFullScreen) 300.dp else 150.dp)
+                                .padding(if (isFullScreen) 0.dp else 8.dp)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -185,3 +236,4 @@ fun TugasKuliahCard(tugas: Tugas, onStatusChange: () -> Unit, onDelete: () -> Un
         }
     }
 }
+

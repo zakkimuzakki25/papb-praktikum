@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
 //    id("com.google.devtools.ksp")
-    id("com.google.devtools.ksp")
-//    id("kotlin-kapt")
+//    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
@@ -93,8 +93,18 @@ dependencies {
 
     // room
     implementation(libs.room.runtime)
-//    kapt("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.room.ktx)
-    ksp("androidx.room:room-compiler:2.6.1")
+//    ksp("androidx.room:room-compiler:2.5.0")
 
+    // cameraX
+    implementation("androidx.camera:camera-core:1.2.0")
+    implementation("androidx.camera:camera-camera2:1.2.0")
+    implementation("androidx.camera:camera-lifecycle:1.2.0")
+//    implementation("androidx.camera:camera-video:1.2.0")
+    implementation("androidx.camera:camera-view:1.2.0")
+
+    implementation("androidx.camera:camera-extensions:1.4.0")
+
+    implementation("com.google.guava:guava:32.1.3-android")
 }
